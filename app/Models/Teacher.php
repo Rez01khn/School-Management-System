@@ -7,11 +7,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Teacher extends Model
 {
-     use HasFactory;
-        public $timestamps = false;
-        protected $primarykey = 'tenant_id';
+    use HasFactory;
+
+    public $timestamps = false;
+    protected $primaryKey = 'teacher_id'; // Corrected property name
+
     protected $fillable = [
         'tenant_id',
-        'address',
+        'first_name',
+        'last_name',
+        'subject',
     ];
 }

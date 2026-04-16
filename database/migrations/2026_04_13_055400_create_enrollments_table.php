@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('student_id');
             $table->integer('course_id');
 
-            $table->string('enrollment_date')->default(DB::raw('curdate()'));
+            $table->date('enrollment_date')->default(DB::raw('(CURRENT_DATE)'));
         });
     }
 

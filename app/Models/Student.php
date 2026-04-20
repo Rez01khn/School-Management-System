@@ -9,11 +9,12 @@ class Student extends Model
 {
     use HasFactory;
         public $timestamps = false;
-        protected $primarykey = 'student_id';
+        protected $primaryKey = 'student_id';
     protected $fillable = [
         'tenant_id',
         'first_name',
         'last_name',
         'grade',
+        'image',
     ];
 }

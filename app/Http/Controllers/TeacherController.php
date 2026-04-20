@@ -31,9 +31,7 @@ class TeacherController extends Controller
         ]);
 
         $validated['tenant_id'] = Auth::user()->tenant_id;
-
         Teacher::create($validated);
-
         return Redirect::route('teachers.index');
     }
 
@@ -45,20 +43,15 @@ class TeacherController extends Controller
             'subject'    => 'required|string|max:50',
         ]);
 
-        $teacher = Teacher::where('tenant_id', Auth::user()->tenant_id)
-            ->where('teacher_id', $id) // Corrected primary key column name
-            ->firstOrFail();
-
+        $teacher = Teacher::where('tenant_id', Auth::user()->tenant_id)->findOrFail($id);
         $teacher->update($validated);
-
         return Redirect::route('teachers.index');
     }
 
     public function destroy($id)
     {
-        $teacher = Teacher::where('tenant_id', Auth::user()->tenant_id)
-            ->where('teacher_id', $id) // Corrected primary key column name
-            ->firstOrFail();
+        $teacher = Teacher::where('tenant_id', Auth::user()->tenant_id)->findOrFail($id);
+            
 
         $teacher->delete();
 

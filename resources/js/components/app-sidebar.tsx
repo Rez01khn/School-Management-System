@@ -21,7 +21,7 @@ const mainNavItems: NavItem[] = [
     },
 
      {
-        title: 'Students',
+        title: 'Student',
         url: '/students',
         icon: Users,
     },
@@ -34,7 +34,7 @@ const mainNavItems: NavItem[] = [
 
      {
         title: 'Courses',
-        url: '/Courses',
+        url: '/courses',
         icon: Book,
     },
 ];

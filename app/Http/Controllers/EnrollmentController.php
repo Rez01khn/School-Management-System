@@ -28,7 +28,27 @@ class EnrollmentController extends Controller
         $validated = $request->validate([
             'student_id' => 'required|integer',
             'course_id' => 'required|integer',
-            'enrolment_date' => 'required|date'
+            'enrollment_date' => 'required|date',
         ]);
+        $validated['tenant_id'] = Auth::user()->tenant_id;
+        Enrollment::create($validated);
+        return Redirect::route('enrollments.index');
+    }
+
+    public function update(Request $request, $id){
+        $validated = $request->validate([
+            'student_id' => 'required| integer',
+            'course_id' => 'required|integer',
+            'enrollment_date' => 'required|date',
+        ]);
+        $enrollment = Enrollment::where('tenant_id', Auth::user()->tenant_id)->findOrFail($id);
+        $enrollment ->update($validated);
+        return Redirect::route('enrollments.index');
+    }
+
+    public function destroy($id){
+        $enrollment = Enrollment::where('tenant_id', Auth::user()->tenant_id)->findOrFail($id);
+        $enrollment -> delete();
+        return Redirect::route('enrollments.index');
     }
 }

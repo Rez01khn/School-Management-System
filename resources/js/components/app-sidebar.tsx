@@ -37,6 +37,21 @@ const mainNavItems: NavItem[] = [
         url: '/courses',
         icon: Book,
     },
+      {
+        title: 'Attendance',
+        url: '/attendance',
+        icon: Folder,
+    },
+      {
+        title: 'Marks',
+        url: '/marks',
+        icon: Folder,
+    },
+      {
+        title: 'Exams',
+        url: '/exams',
+        icon: Folder,
+    },
 ];
 const footerNavItems: NavItem[] = [
     {

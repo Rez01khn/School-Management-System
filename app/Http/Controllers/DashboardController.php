@@ -28,8 +28,8 @@ class DashboardController extends Controller
             'schoolName' => $schoolName,
             'totalStudents' =>$totalStudents,
             'totalCourses' => $totalCourses,
-            'totalTeacher' => $totalTeachers,
-            'totalSubject' =>$totalStudents,
+            'totalTeachers' => $totalTeachers,
+            'totalSubjects' => $totalSubjects,
             'totalEnrollments' => $totalEnrollment,
         ]);
     }

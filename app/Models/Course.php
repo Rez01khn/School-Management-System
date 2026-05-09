@@ -9,7 +9,7 @@ class Course extends Model
 {   
         use HasFactory;
         public $timestamps = false;
-        protected $primarykey = 'course_id';
+        protected $primaryKey = 'course_id';
     protected $fillable = [
         'tenant_id',
         'course_name',

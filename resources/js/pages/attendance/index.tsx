@@ -4,7 +4,7 @@ import { usePage, router, Head } from "@inertiajs/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Label } from "@/components/ui/label";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo  } from "react";
 import { CheckCircle, XCircle, Clock } from "lucide-react";
 
 interface Student {
@@ -24,7 +24,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function AttendanceIndex() {
-
     const { courses, students, selectedCourseId, selectedDate } = usePage<{ 
         courses?: Course[]; 
         students?: Student[]; 
@@ -32,8 +31,8 @@ export default function AttendanceIndex() {
         selectedDate?: string; 
     }>().props;
 
-    const studentList = students ?? [];
-    const courseList = courses ?? [];
+    const studentList = useMemo(() => students ?? [], [students]);
+    const courseList = useMemo(() => courses ?? [], [courses]);
 
     const [date, setDate] = useState(selectedDate || new Date().toISOString().split('T')[0]);
     const [attendanceData, setAttendanceData] = useState<Record<number, string>>({});
@@ -46,16 +45,13 @@ export default function AttendanceIndex() {
             });
             setAttendanceData(initialData);
         }
-    }, [students]);
-
-
-    const fetchAttendanceData = (courseId: any, targetDate: string) => {
+    }, [studentList]);
+    const fetchAttendanceData = (courseId: string | number, targetDate: string) => {
         router.get('/attendance', 
             { course_id: courseId, attendance_date: targetDate }, 
             { preserveState: true }
         );
     };
-
     const handleCourseChange = (courseId: string) => {
         fetchAttendanceData(courseId, date);
     };

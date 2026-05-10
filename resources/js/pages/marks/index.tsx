@@ -9,11 +9,30 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useState, useEffect } from "react";
 import { Edit2, Trash2 } from "lucide-react";
 
+// ১. প্রয়োজনীয় ইন্টারফেসগুলো ডিফাইন করা হলো
 interface Student {
     student_id: number;
     first_name: string;
     last_name: string;
     marks_obtained?: string | number;
+}
+
+interface Exam {
+    exam_id: number;
+    exam_name: string;
+}
+
+interface Course {
+    course_id: number;
+    course_name: string;
+}
+
+interface MarkRecord {
+    mark_id: number;
+    marks_obtained: string | number;
+    student?: Student;
+    exam?: Exam;
+    course?: Course;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -22,18 +41,27 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function MarkIndex() {
+    // ২. usePage এ any এর বদলে ইন্টারফেসগুলো ব্যবহার করা হয়েছে
     const { exams, courses, students, allMarks, selectedExamId, selectedCourseId } = usePage<{
-        exams: any[], courses: any[], students: Student[], allMarks: any[], selectedExamId: number, selectedCourseId: number
+        exams: Exam[];
+        courses: Course[];
+        students: Student[];
+        allMarks: MarkRecord[];
+        selectedExamId: number;
+        selectedCourseId: number;
     }>().props;
 
     const [marks, setMarks] = useState<Record<number, string | number>>({});
     const [editOpen, setEditOpen] = useState(false);
-    const [selectedMark, setSelectedMark] = useState<any>(null);
-    const [newMarkValue, setNewMarkValue] = useState("");
+
+    // ৩. selectedMark এর টাইপ MarkRecord | null করা হয়েছে
+    const [selectedMark, setSelectedMark] = useState<MarkRecord | null>(null);
+    const [newMarkValue, setNewMarkValue] = useState<string | number>("");
 
     useEffect(() => {
         if (students?.length > 0) {
-            const initialMarks: any = {};
+            // ৪. initialMarks এর টাইপ নির্দিষ্ট করা হয়েছে
+            const initialMarks: Record<number, string | number> = {};
             students.forEach(s => {
                 initialMarks[s.student_id] = s.marks_obtained || '';
             });
@@ -41,7 +69,8 @@ export default function MarkIndex() {
         }
     }, [students]);
 
-    const handleFilterChange = (examId: any, courseId: any) => {
+    // ৫. ফাংশন প্যারামিটারে any সরিয়ে টাইপ দেওয়া হয়েছে
+    const handleFilterChange = (examId: string | number, courseId: string | number) => {
         router.get('/marks', { exam_id: examId, course_id: courseId }, { preserveState: true });
     };
 
@@ -58,7 +87,8 @@ export default function MarkIndex() {
         }
     };
 
-    const handleEditOpen = (mark: any) => {
+    // ৬. ফাংশন প্যারামিটারে MarkRecord টাইপ দেওয়া হয়েছে
+    const handleEditOpen = (mark: MarkRecord) => {
         setSelectedMark(mark);
         setNewMarkValue(mark.marks_obtained);
         setEditOpen(true);
@@ -66,6 +96,7 @@ export default function MarkIndex() {
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!selectedMark) return;
         router.put(`/marks/${selectedMark.mark_id}`, { marks_obtained: newMarkValue }, {
             onSuccess: () => setEditOpen(false)
         });
@@ -80,20 +111,34 @@ export default function MarkIndex() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <Label>Select Exam</Label>
-                            <select className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none" value={selectedExamId || ""} onChange={e => handleFilterChange(e.target.value, selectedCourseId)}>
+                            <select
+                                className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
+                                value={selectedExamId || ""}
+                                onChange={e => handleFilterChange(e.target.value, selectedCourseId)}
+                            >
                                 <option value="">-- Choose Exam --</option>
-                                {exams.map((exam: any) => <option key={exam.exam_id} value={exam.exam_id}>{exam.exam_name}</option>)}
+                                {/* ৭. ম্যাপে (exam) এর টাইপ অটোমেটিক ডিটেক্ট হবে */}
+                                {exams.map((exam) => (
+                                    <option key={exam.exam_id} value={exam.exam_id}>{exam.exam_name}</option>
+                                ))}
                             </select>
                         </div>
                         <div>
                             <Label>Select Course</Label>
-                            <select className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none" value={selectedCourseId || ""} onChange={e => handleFilterChange(selectedExamId, e.target.value)}>
+                            <select
+                                className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
+                                value={selectedCourseId || ""}
+                                onChange={e => handleFilterChange(selectedExamId, e.target.value)}
+                            >
                                 <option value="">-- Choose Course --</option>
-                                {courses.map((course: any) => <option key={course.course_id} value={course.course_id}>{course.course_name}</option>)}
+                                {courses.map((course) => (
+                                    <option key={course.course_id} value={course.course_id}>{course.course_name}</option>
+                                ))}
                             </select>
                         </div>
                     </div>
                 </Card>
+
                 {selectedExamId > 0 && selectedCourseId > 0 && (
                     <form onSubmit={handleSubmit} className="mb-12">
                         <Card className="overflow-hidden">
@@ -107,12 +152,12 @@ export default function MarkIndex() {
                                     </thead>
                                     <tbody className="divide-y">
                                         {students.map(student => (
-                                            <tr key={student.student_id} className="hover:bg-gray-50 dark:hover:bg-neutral-900 transition-colors">
+                                            <tr key={student.student_id} className="hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">
                                                 <td className="px-6 py-4">{student.first_name} {student.last_name}</td>
                                                 <td className="px-6 py-4 flex justify-end">
                                                     <Input
                                                         type="number" className="w-32 text-right"
-                                                        value={marks[student.student_id]}
+                                                        value={marks[student.student_id] || ""}
                                                         onChange={e => setMarks({ ...marks, [student.student_id]: e.target.value })}
                                                         placeholder="0"
                                                     />
@@ -138,6 +183,7 @@ export default function MarkIndex() {
                         </div>
                     </form>
                 )}
+
                 <div className="mt-10">
                     <h2 className="text-xl font-bold mb-4"> Results History</h2>
                     <Card className="overflow-hidden">
@@ -152,10 +198,12 @@ export default function MarkIndex() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y">
-                                    {allMarks.map((m: any) => (
+                                    {allMarks.map((m) => (
                                         <tr key={m.mark_id} className="hover:bg-gray-50 dark:hover:bg-neutral-900 transition-colors">
                                             <td className="px-6 py-4">
-                                                <span className="font-medium text-gray-900 dark:text-gray-100">{m.student?.first_name} {m.student?.last_name}</span>
+                                                <span className="font-medium text-gray-900 dark:text-gray-100">
+                                                    {m.student?.first_name} {m.student?.last_name}
+                                                </span>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="text-xs text-gray-500">{m.exam?.exam_name}</div>
@@ -187,6 +235,7 @@ export default function MarkIndex() {
                     </Card>
                 </div>
             </div>
+
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
                 <DialogContent>
                     <DialogHeader><DialogTitle>Update Mark</DialogTitle></DialogHeader>

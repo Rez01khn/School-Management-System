@@ -66,11 +66,12 @@ export default function StudentIndex() {
         setIsEdit(false);
     };
 
-    const handleChange = (e: any) => {
-        if (e.target.type === "file") {
-            setForm({ ...form, image: e.target.files[0] });
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, files } = e.target;
+        if (type === "file") {
+            setForm((prev) => ({ ...prev, image: files ? files[0] : null }));
         } else {
-            setForm({ ...form, [e.target.name]: e.target.value });
+            setForm((prev) => ({ ...prev, [name]: value }));
         }
     };
 

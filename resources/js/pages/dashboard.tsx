@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
-import { Users, Book, GraduationCap, BookOpen, ListChecks } from 'lucide-react';
+import { Users, Book, GraduationCap, ListChecks } from 'lucide-react';
 import {
     Card,
     CardContent,
@@ -9,7 +9,7 @@ import {
     CardTitle,
     CardDescription,
 } from '@/components/ui/card';
-import { Description } from '@radix-ui/react-dialog';
+// import { Description } from '@radix-ui/react-dialog';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -50,20 +50,25 @@ const stats = [
     }
 ];
 
+type DashboardProps = {
+    schoolName?: string;
+    totalStudents?: number;
+    totalCourses?: number;
+    totalTeachers?: number;
+    totalEnrollments?: number;
+    [key: string]: string | number | undefined;
+};
 
 export default function Dashboard() {
-    const pageProps = usePage().props as any;
+    const pageProps = usePage().props as unknown as DashboardProps;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
 
             <div className="py-12 min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-neutral-900">
-
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
                     <div className="mb-8">
-
                         <h1 className="text-4xl font-extrabold mb-2 tracking-tight text-primary drop-shadow-lg text-left">
                             Welcome👋
                             <p className="text-gray-500 mt-4">
@@ -77,7 +82,6 @@ export default function Dashboard() {
                                 </span>
                             </div>
                         )}
-
                         <div className="h-1 w-24 bg-gradient-to-r from-blue-400 via-pink-400 to-yellow-400 rounded-full mb-6"></div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 p-4 bg-white/80 dark:bg-neutral-900/80 rounded-2xl shadow-2xl border border-gray-200 dark:border-neutral-800">
@@ -95,11 +99,8 @@ export default function Dashboard() {
                                             <Icon className={`w-6 h-6 ${color}`} />
                                             {label}
                                         </CardTitle>
-
                                     </CardHeader>
-
                                     <CardContent>
-
                                         <div className="text-4xl font-extrabold mb-1 text-center tracking-tight text-gray-900 dark:text-white drop-shadow">
                                             {pageProps[key]}
                                         </div>
@@ -112,13 +113,9 @@ export default function Dashboard() {
 
                                 </Card>
                             ))}
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
 
         </AppLayout>

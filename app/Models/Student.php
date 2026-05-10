@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Student extends Model
 {
     use HasFactory;
-        public $timestamps = false;
-        protected $primaryKey = 'student_id';
+    public $timestamps = false;
+    protected $primaryKey = 'student_id';
     protected $fillable = [
         'tenant_id',
         'first_name',
@@ -17,4 +17,9 @@ class Student extends Model
         'grade',
         'image',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

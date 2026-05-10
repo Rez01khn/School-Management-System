@@ -15,6 +15,9 @@ interface Student {
     last_name: string;
     grade: number;
     image?: string;
+     user?: {
+        email: string;
+    };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -28,6 +31,7 @@ const emptyForm = {
     first_name: '',
     last_name: '',
     grade: '',
+    email: '',
     image: null as File | null
 };
 
@@ -54,6 +58,7 @@ export default function StudentIndex() {
             first_name: student.first_name,
             last_name: student.last_name,
             grade: String(student.grade),
+            email: student.user?.email || '',
             image: null
         });
         setIsEdit(true);
@@ -186,6 +191,19 @@ export default function StudentIndex() {
                         <div>
                             <Label>Last Name</Label>
                             <Input name="last_name" value={form.last_name} onChange={handleChange} required />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="email">Email Address</Label>
+                            <Input
+                                id="email"
+                                name="email"
+                                type="email"
+                                value={form.email}
+                                onChange={handleChange}
+                                required
+                                placeholder="teacher@example.com"
+                            />
                         </div>
 
                         <div>

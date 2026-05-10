@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('marks', function (Blueprint $table) {
             $table->increments('mark_id');
-            $table->integer('tenant_id')->nullable();
+            $table->integer('tenant_id');
             $table->integer('exam_id');
             $table->integer('student_id');
             $table->integer('course_id');

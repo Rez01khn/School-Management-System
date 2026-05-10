@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Hash;
+
 
 class StudentController extends Controller
 {
@@ -14,7 +18,7 @@ class StudentController extends Controller
     {
         $tenantId = Auth::user()->tenant_id;
 
-        $students = Student::where('tenant_id', $tenantId)->get();
+        $students = Student::where('tenant_id', $tenantId)->with('user')->get();
 
         return Inertia::render('student/index', [
             'tenant_id' => $tenantId,
@@ -28,14 +32,33 @@ class StudentController extends Controller
             'first_name' => 'required|string|max:50',
             'last_name' => 'required|string|max:50',
             'grade' => 'required|integer',
+            'email' => 'required|email|unique:users,email',
             'image' => 'nullable|image|mimes:jpg,png,jpeg|max:5120',
         ]);
 
-        if ($request->hasFile('image')) {
-        $validated['image'] = $request->file('image')->store('students', 'public');
-    }
-        $validated['tenant_id'] = Auth::user()->tenant_id;
-        Student::create($validated);
+        $tenantId = Auth::user()->tenant_id;
+
+        DB::transaction(function () use ($request, $tenantId) {
+            $user = User::create([
+                'name' => $request->first_name . ' ' . $request->last_name,
+                'email' => $request->email,
+                'password' => Hash::make('student123'),
+                'role' => 'student',
+                'tenant_id' => $tenantId,
+            ]);
+
+            $imagePath = $request->hasFile('image') ? $request->file('image')->store('students', 'public') : null;
+
+            Student::create([
+                'tenant_id' => $tenantId,
+                'user_id' => $user->id,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'grade' => $request->grade,
+                'image' => $imagePath,
+            ]);
+        });
+
         return Redirect::route('students.index');
     }
 
@@ -49,11 +72,11 @@ class StudentController extends Controller
         ]);
         $student = Student::where('tenant_id', Auth::user()->tenant_id)->findOrFail($id);
         if ($request->hasFile('image')) {
-        if ($student->image) {
-            \Storage::disk('public')->delete($student->image);
+            if ($student->image) {
+                \Storage::disk('public')->delete($student->image);
+            }
+            $validated['image'] = $request->file('image')->store('students', 'public');
         }
-        $validated['image'] = $request->file('image')->store('students', 'public');
-    }
         $student->update($validated);
         return Redirect::route('students.index');
     }

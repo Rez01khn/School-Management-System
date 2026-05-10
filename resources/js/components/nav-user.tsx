@@ -9,7 +9,11 @@ import { ChevronsUpDown } from 'lucide-react';
 
 export function NavUser() {
     const { auth } = usePage<SharedData>().props;
-    const { state } = useSidebar();
+
+    // ১. যদি ইউজার লগইন করা না থাকে, তবে এই অংশটুকু রেন্ডার হবে না
+    if (!auth?.user) return null; 
+
+    const { state } = useSidebar(); // এখানে { state } হবে
     const isMobile = useIsMobile();
 
     return (
@@ -18,11 +22,11 @@ export function NavUser() {
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton size="lg" className="text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent group">
-                            <UserInfo user={auth.user} />
+                            <UserInfo user={auth.user} /> 
                             <ChevronsUpDown className="ml-auto size-4" />
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent
+                    <DropdownMenuContent 
                         className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
                         align="end"
                         side={isMobile ? 'bottom' : state === 'collapsed' ? 'left' : 'bottom'}

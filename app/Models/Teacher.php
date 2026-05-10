@@ -10,7 +10,7 @@ class Teacher extends Model
     use HasFactory;
 
     public $timestamps = false;
-    protected $primaryKey = 'teacher_id'; // Corrected property name
+    protected $primaryKey = 'teacher_id';
 
     protected $fillable = [
         'tenant_id',
@@ -18,4 +18,8 @@ class Teacher extends Model
         'last_name',
         'subject',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

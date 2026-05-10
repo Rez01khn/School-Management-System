@@ -15,6 +15,9 @@ interface Teacher {
     first_name: string;
     last_name: string;
     subject: string
+     user?: {
+        email: string;
+    };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -24,7 +27,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const emptyForm = { first_name: '', last_name: '', subject: '' };
+const emptyForm = { first_name: '', last_name: '', subject: '', email: '' };
 
 type FormState = typeof emptyForm & { id?: number };
 
@@ -47,6 +50,8 @@ export default function TeacherIndex() {
             first_name: teacher.first_name,
             last_name: teacher.last_name,
             subject: teacher.subject,
+            email: teacher.user?.email || '', 
+
 
         });
         setIsEdit(true);
@@ -82,107 +87,120 @@ export default function TeacherIndex() {
         }
     };
     return (
-    <AppLayout breadcrumbs={breadcrumbs}>
-        <Card className="p-6 mt-6">
-            <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-bold">Teacher</h1>
-                <Button onClick={handleOpenAdd}>Add Teacher</Button>
-            </div>
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Card className="p-6 mt-6">
+                <div className="flex items-center justify-between mb-4">
+                    <h1 className="text-2xl font-bold">Teacher</h1>
+                    <Button onClick={handleOpenAdd}>Add Teacher</Button>
+                </div>
 
-            <div className="overflow-x-auto">
-                <table className="min-w-full border text-sm rounded-lg">
-                    <thead className="bg-gray-100 dark:bg-neutral-800">
-                        <tr>
-                            <th className="px-4 py-2 text-left font-semibold">ID</th>
-                            <th className="px-4 py-2 text-left font-semibold">First Name</th>
-                            <th className="px-4 py-2 text-left font-semibold">Last Name</th>
-                            <th className="px-4 py-2 text-left font-semibold">Subject</th>
-                            <th className="px-4 py-2 text-left font-semibold">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {teacherList.map((teacher) => (
-                            <tr
-                                key={teacher.teacher_id}
-                                className="border-b last:border-0 hover:bg-gray-50 dark:hover:bg-neutral-700"
-                            >
-                                <td className="px-4 py-2">{teacher.teacher_id}</td>
-                                <td className="px-4 py-2">{teacher.first_name}</td>
-                                <td className="px-4 py-2">{teacher.last_name}</td>
-                                <td className="px-4 py-2">{teacher.subject}</td>
-                                <td className="px-4 py-2 flex gap-2">
-                                    <Button size="sm" variant="outline" onClick={() => handleOpenEdit(teacher)}>
-                                        Edit
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="destructive"
-                                        onClick={() => handleDelete(teacher.teacher_id)}
-                                    >
-                                        Delete
-                                    </Button>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full border text-sm rounded-lg">
+                        <thead className="bg-gray-100 dark:bg-neutral-800">
+                            <tr>
+                                <th className="px-4 py-2 text-left font-semibold">ID</th>
+                                <th className="px-4 py-2 text-left font-semibold">First Name</th>
+                                <th className="px-4 py-2 text-left font-semibold">Last Name</th>
+                                <th className="px-4 py-2 text-left font-semibold">Subject</th>
+                                <th className="px-4 py-2 text-left font-semibold">Action</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </Card>
-        
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>
-                        {isEdit ? 'Update Teacher' : 'Add Teacher'}
-                    </DialogTitle>
-                </DialogHeader>
+                        </thead>
+                        <tbody>
+                            {teacherList.map((teacher) => (
+                                <tr
+                                    key={teacher.teacher_id}
+                                    className="border-b last:border-0 hover:bg-gray-50 dark:hover:bg-neutral-700"
+                                >
+                                    <td className="px-4 py-2">{teacher.teacher_id}</td>
+                                    <td className="px-4 py-2">{teacher.first_name}</td>
+                                    <td className="px-4 py-2">{teacher.last_name}</td>
+                                    <td className="px-4 py-2">{teacher.subject}</td>
+                                    <td className="px-4 py-2 flex gap-2">
+                                        <Button size="sm" variant="outline" onClick={() => handleOpenEdit(teacher)}>
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="destructive"
+                                            onClick={() => handleDelete(teacher.teacher_id)}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </Card>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <Label htmlFor="first_name">First Name</Label>
-                        <Input
-                            id="first_name"
-                            name="first_name"
-                            value={form.first_name}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
+            <Dialog open={open} onOpenChange={setOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            {isEdit ? 'Update Teacher' : 'Add Teacher'}
+                        </DialogTitle>
+                    </DialogHeader>
 
-                    <div>
-                        <Label htmlFor="last_name">Last Name</Label>
-                        <Input
-                            id="last_name"
-                            name="last_name"
-                            value={form.last_name}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <Label htmlFor="first_name">First Name</Label>
+                            <Input
+                                id="first_name"
+                                name="first_name"
+                                value={form.first_name}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
 
-                    <div>
-                        <Label htmlFor="subject">Subject</Label>
-                        <Input
-                            id="subject"
-                            name="subject"
-                            value={form.subject}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
+                        <div>
+                            <Label htmlFor="last_name">Last Name</Label>
+                            <Input
+                                id="last_name"
+                                name="last_name"
+                                value={form.last_name}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
 
-                    <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" onClick={handleClose}>
-                            Cancel
-                        </Button>
-                        <Button type="submit">
-                            {isEdit ? 'Update' : 'Add'}
-                        </Button>
-                    </div>
-                </form>
-            </DialogContent>
-        </Dialog>
-    </AppLayout>
-);
+                        <div>
+                            <Label htmlFor="email">Email Address</Label>
+                            <Input
+                                id="email"
+                                name="email"
+                                type="email"
+                                value={form.email}
+                                onChange={handleChange}
+                                required
+                                placeholder="teacher@example.com"
+                            />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="subject">Subject</Label>
+                            <Input
+                                id="subject"
+                                name="subject"
+                                value={form.subject}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-2">
+                            <Button type="button" variant="outline" onClick={handleClose}>
+                                Cancel
+                            </Button>
+                            <Button type="submit">
+                                {isEdit ? 'Update' : 'Add'}
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
+        </AppLayout>
+    );
 }
 

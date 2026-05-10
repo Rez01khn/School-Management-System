@@ -12,12 +12,12 @@ return new class extends Migration {
     {
         Schema::create('marks', function (Blueprint $table) {
             $table->increments('mark_id');
-            $table->integer('tenant_id');
+            $table->integer('tenant_id')->nullable();
             $table->integer('exam_id');
             $table->integer('student_id');
             $table->integer('course_id');
-            $table->integer('marks_obtained'); // প্রাপ্ত নম্বর
-            $table->integer('total_marks')->default(100); // মোট নম্বর
+            $table->integer('marks_obtained');
+            $table->integer('total_marks')->default(100); 
             $table->timestamps();
         });
     }

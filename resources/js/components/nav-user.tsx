@@ -9,13 +9,12 @@ import { ChevronsUpDown } from 'lucide-react';
 
 export function NavUser() {
     const { auth } = usePage<SharedData>().props;
-
-    // ১. যদি ইউজার লগইন করা না থাকে, তবে এই অংশটুকু রেন্ডার হবে না
-    if (!auth?.user) return null; 
-
-    const { state } = useSidebar(); // এখানে { state } হবে
+    const { state } = useSidebar(); 
     const isMobile = useIsMobile();
 
+    if (!auth?.user) {
+        return null; 
+    }
     return (
         <SidebarMenu>
             <SidebarMenuItem>

@@ -68,23 +68,35 @@ class StudentController extends Controller
             'first_name' => 'required|string|max:50',
             'last_name' => 'required|string|max:50',
             'grade' => 'required|integer',
+            'email' => 'required|email|unique:users,email,' . Student::find($id)->user_id,
             'image' => 'nullable|image|mimes:jpg,png,jpeg|max:5120',
         ]);
-        $student = Student::where('tenant_id', Auth::user()->tenant_id)->findOrFail($id);
+
+        $student = Student::findOrFail($id);
+
+        $student->user->update([
+            'name' => $request->first_name . ' ' . $request->last_name,
+            'email' => $request->email,
+        ]);
+
         if ($request->hasFile('image')) {
             if ($student->image) {
                 \Storage::disk('public')->delete($student->image);
             }
             $validated['image'] = $request->file('image')->store('students', 'public');
         }
+
         $student->update($validated);
         return Redirect::route('students.index');
     }
 
     public function destroy($id)
     {
-        $student = Student::where('tenant_id', Auth::user()->tenant_id)->findOrFail($id);
+        $student = Student::findOrFail($id);
+        $user = User::find($student->user_id);
         $student->delete();
+        if ($user)
+            $user->delete();
 
         return Redirect::route('students.index');
     }

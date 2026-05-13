@@ -1,10 +1,11 @@
 import AppLayout from "@/layouts/app-layout";
 import { type BreadcrumbItem } from '@/types';
-import { usePage, router, Head } from "@inertiajs/react";
-import { Card, CardContent } from "@/components/ui/card";
+import { usePage, router, Head} from "@inertiajs/react";
+import { Card } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Label } from "@/components/ui/label";
 import { Printer, GraduationCap, User, FileText } from "lucide-react";
+
 
 interface Student {
     student_id: number;
@@ -28,14 +29,28 @@ interface Mark {
     };
 }
 
+interface ReportPageProps {
+    auth: {
+        user: {
+            role: string;
+        };
+    };
+    students: Student[];
+    exams: Exam[];
+    reportData: Mark[];
+    selectedStudent: Student | null;
+    selectedExam: Exam | null;
+    [key: string]: unknown; 
+}
+
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Report Card', href: '/report-card' },
 ];
 
 export default function ReportCardIndex() {
-    // ১. auth ডাটা এবং রোল রিসিভ করুন
-    const { props } = usePage() as any;
+ 
+    const { props } = usePage<ReportPageProps>();
     const { students, exams, reportData, selectedStudent, selectedExam, auth } = props;
 
     const userRole = auth.user?.role;
@@ -51,7 +66,8 @@ export default function ReportCardIndex() {
         return { grade: 'F', color: 'text-red-600' };
     };
 
-    const handleFilterChange = (studentId: any, examId: any) => {
+
+    const handleFilterChange = (studentId: string | number | undefined, examId: string | number | undefined) => {
         router.get('/report-card', { student_id: studentId, exam_id: examId }, { preserveState: true });
     };
 
@@ -67,17 +83,13 @@ export default function ReportCardIndex() {
             <Head title="Student Report Card" />
 
             <div className="p-6 max-w-5xl mx-auto">
-
                 <Card className="p-6 mb-8 print:hidden shadow-sm">
-                    {/* ২. যদি স্টুডেন্ট হয় তবে গ্রিড ১ কলামের হবে, নাহলে ২ কলামের */}
                     <div className={`grid grid-cols-1 ${!isStudent ? 'md:grid-cols-2' : ''} gap-6`}>
-
-                        {/* ৩. স্টুডেন্ট ড্রপডাউনটি শুধু এডমিন এবং টিচার দেখবে */}
                         {!isStudent && (
                             <div>
                                 <Label>Select Student</Label>
                                 <select
-                                    className="mt-1 w-full border rounded-md p-2 outline-none bg-background"
+                                    className="mt-1 w-full border rounded-md p-2 outline-none bg-background text-sm"
                                     value={selectedStudent?.student_id || ""}
                                     onChange={(e) => handleFilterChange(e.target.value, selectedExam?.exam_id)}
                                 >
@@ -94,7 +106,7 @@ export default function ReportCardIndex() {
                         <div>
                             <Label>Select Exam</Label>
                             <select
-                                className="mt-1 w-full border rounded-md p-2 outline-none bg-background"
+                                className="mt-1 w-full border rounded-md p-2 outline-none bg-background text-sm"
                                 value={selectedExam?.exam_id || ""}
                                 onChange={(e) => handleFilterChange(selectedStudent?.student_id, e.target.value)}
                             >
@@ -192,7 +204,7 @@ export default function ReportCardIndex() {
                         </Card>
                     </div>
                 ) : selectedStudent && selectedExam ? (
-                    <Card className="p-20 text-center text-gray-400 font-medium">
+                    <Card className="p-20 text-center text-gray-400 font-medium bg-white dark:bg-neutral-900 border-none">
                         <FileText className="mx-auto mb-4 text-gray-200" size={48} />
                         No marks found for this student in the selected exam.
                     </Card>

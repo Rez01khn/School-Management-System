@@ -1,132 +1,203 @@
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
-import { Users, Book, GraduationCap, ListChecks, ClipboardList, FileText } from 'lucide-react'; // নতুন আইকন যোগ করা হয়েছে
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@/components/ui/card';
+import { 
+    Users, GraduationCap, Calendar, BookOpen, 
+    FileCheck, ClipboardList, UserPlus, Star, 
+    Bell, ArrowUpRight, Search, LayoutDashboard
+} from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
+const statsConfig = [
+    { label: 'Students', key: 'totalStudents', icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { label: 'Teachers', key: 'totalTeachers', icon: GraduationCap, color: 'text-purple-600', bg: 'bg-purple-100' },
+    { label: 'Courses', key: 'totalCourses', icon: BookOpen, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { label: 'Exams', key: 'totalExams', icon: ClipboardList, color: 'text-orange-600', bg: 'bg-orange-100' },
+    { label: 'Enrollments', key: 'totalEnrollments', icon: UserPlus, color: 'text-pink-600', bg: 'bg-pink-100' },
+    { label: 'Results', key: 'totalResults', icon: FileCheck, color: 'text-indigo-600', bg: 'bg-indigo-100' },
 ];
 
-const stats = [
-    {
-        label: 'Students',
-        icon: Users,
-        key: 'totalStudents',
-        description: 'Total students in your school',
-        color: 'text-blue-500',
-    },
-    {
-        label: 'Courses',
-        icon: Book,
-        key: 'totalCourses',
-        description: 'Total courses offered',
-        color: 'text-green-500',
-    },
-    {
-        label: 'Teachers',
-        icon: GraduationCap,
-        key: 'totalTeachers',
-        description: 'Total teachers',
-        color: 'text-orange-500',
-    },
-    {
-        label: 'Enrollments',
-        icon: ListChecks,
-        key: 'totalEnrollments',
-        description: 'Total course enrollments',
-        color: 'text-pink-500',
-    },
-    // নতুন স্ট্যাটাস কার্ড
-    {
-        label: 'Exams',
-        icon: ClipboardList,
-        key: 'totalExams',
-        description: 'Total examinations created',
-        color: 'text-purple-500',
-    },
-    {
-        label: 'Results',
-        icon: FileText,
-        key: 'totalResults',
-        description: 'Total results recorded',
-        color: 'text-indigo-500',
-    }
-];
+interface AttendanceItem {
+    date: string;
+    Present: number;
+    Total?: number;
+}
 
-type DashboardProps = {
-    schoolName?: string;
-    totalStudents?: number;
-    totalCourses?: number;
-    totalTeachers?: number;
-    totalEnrollments?: number;
-    totalExams?: number;
-    totalResults?: number;
-    [key: string]: string | number | undefined;
-};
+interface GradeItem {
+    name: string;
+    value: number;
+}
 
+interface DashboardProps {
+    schoolName: string | null;
+    attendanceChart: AttendanceItem[];
+    gradeChart: GradeItem[];
+    totalStudents: number;
+    totalTeachers: number;
+    totalCourses: number;
+    totalEnrollments: number;
+    totalExams: number;
+    totalResults: number;
+    auth: {
+        user: {
+            name: string;
+            role: string;
+        };
+    };
+    [key: string]: unknown;
+}
 export default function Dashboard() {
-    const pageProps = usePage().props as unknown as DashboardProps;
-
+    const { schoolName, attendanceChart, ...data } = usePage<DashboardProps>().props;
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
-
-            <div className="py-12 min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-neutral-900">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="mb-8">
-                        <h1 className="text-4xl font-extrabold mb-2 tracking-tight text-primary drop-shadow-lg text-left">
-                            Welcome👋
-                            <p className="text-gray-500 mt-4 text-lg">
-                                Manage your school system easily.
-                            </p>
-                        </h1>                                             
-                        {pageProps.schoolName && (
-                            <div className="text-xl text-gray-700 dark:text-gray-200 font-semibold text-left mb-4">
-                                <span className="inline-block px-4 py-1 rounded-full bg-primary/10 dark:bg-primary/20 text-primary font-bold shadow-sm">
-                                    {pageProps.schoolName}
-                                </span>
+        <AppLayout breadcrumbs={[{ title: 'Overview', href: '/dashboard' }]}>
+            <Head title="Admin Dashboard" />
+            <div className="min-h-screen bg-[#F8FAFC] dark:bg-neutral-950 p-6 lg:p-10 space-y-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-8 border-slate-200 dark:border-neutral-800">
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <div className="bg-primary p-1.5 rounded-lg">
+                                <LayoutDashboard className="text-white h-5 w-5" />
                             </div>
-                        )}
-                        <div className="h-1 w-24 bg-gradient-to-r from-blue-400 via-pink-400 to-yellow-400 rounded-full mb-6"></div>
-
-                        {/* গ্রিড কলাম সংখ্যা বাড়ানো হয়েছে যাতে ৬টি কার্ড সুন্দর দেখায় */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-4 bg-white/80 dark:bg-neutral-900/80 rounded-2xl shadow-2xl border border-gray-200 dark:border-neutral-800">
-
-                            {stats.map(({ label, icon: Icon, key, description, color }) => (
-
-                                <Card
-                                    key={label}
-                                    className="transition-all hover:scale-105 hover:shadow-xl border-none shadow-md"
-                                >
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-base font-bold flex items-center gap-2">
-                                            <div className={`p-2 rounded-lg bg-gray-50 dark:bg-neutral-800`}>
-                                                <Icon className={`w-5 h-5 ${color}`} />
-                                            </div>
-                                            {label}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-4xl font-black mb-1 text-center tracking-tight text-gray-900 dark:text-white">
-                                            {pageProps[key] || 0}
-                                        </div>
-                                        <CardDescription className="text-center text-sm font-medium">
-                                            {description}
-                                        </CardDescription>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                            <span className="text-sm font-bold text-primary uppercase tracking-widest">Control Panel</span>
                         </div>
+                        <h1 className="text-4xl font-black text-slate-900 dark:text-white">
+                            {schoolName || 'School Management System'}
+                        </h1>
+                        <p className="text-slate-500 font-medium">Hello Admin, here is what's happening today.</p>
+                    </div>
+                    <div className="flex items-center gap-4 w-full md:w-auto">
+                        <div className="relative w-full md:w-64">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
+                            <input type="text" placeholder="Global Search..." className="w-full pl-10 pr-4 py-2.5 rounded-xl border-none bg-white dark:bg-neutral-900 shadow-sm ring-1 ring-slate-200 dark:ring-neutral-800 focus:ring-2 ring-primary outline-none" />
+                        </div>
+                        <button className="p-2.5 bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 transition-all relative">
+                            <Bell className="h-5 w-5 text-slate-600" />
+                            <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border-2 border-white"></span>
+                        </button>
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+                    {statsConfig.map((stat) => (
+                        <Card key={stat.label} className="border-none shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden bg-white dark:bg-neutral-900">
+                            <CardContent className="p-6">
+                                <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                                    <stat.icon className="h-6 w-6" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">{stat.label}</p>
+                                    <div className="flex items-baseline gap-2">
+                                            <h3 className="text-3xl font-black text-slate-900 dark:text-white">{Number(data[stat.key]) || 0}</h3>
+                                        <span className="text-[10px] text-emerald-500 font-bold flex items-center"><ArrowUpRight size={12}/> 12%</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div className="lg:col-span-8 space-y-8">
+                        <Card className="border-none shadow-xl bg-white dark:bg-neutral-900 rounded-3xl overflow-hidden">
+                            <div className="p-8 border-b border-slate-50 dark:border-neutral-800 flex justify-between items-center">
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-900 dark:text-white">Attendance Analytics</h3>
+                                    <p className="text-sm text-slate-400">Student presence flow over the last 7 days</p>
+                                </div>
+                                <select className="bg-slate-50 dark:bg-neutral-800 border-none rounded-lg px-4 py-2 text-xs font-bold outline-none">
+                                    <option>This Week</option>
+                                    <option>Last Month</option>
+                                </select>
+                            </div>
+                            <div className="p-6 h-[400px]">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={attendanceChart}>
+                                        <defs>
+                                            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} dy={15} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} dx={-10} />
+                                        <Tooltip 
+                                            contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
+                                        />
+                                        <Area type="monotone" dataKey="Present" stroke="#3b82f6" strokeWidth={4} fillOpacity={1} fill="url(#chartGradient)" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </Card>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <Card className="border-none shadow-lg p-6 bg-white dark:bg-neutral-900 rounded-3xl">
+                                <h4 className="font-black text-lg mb-4 flex items-center gap-2"><Calendar className="text-primary" /> Upcoming Events</h4>
+                                <div className="space-y-4">
+                                    {[1, 2].map((i) => (
+                                        <div key={i} className="flex gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-neutral-800 border-l-4 border-primary">
+                                            <div className="text-center min-w-[45px]">
+                                                <p className="text-xs font-bold uppercase text-primary">May</p>
+                                                <p className="text-xl font-black">2{i}</p>
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-sm">Annual Prize Giving Day</p>
+                                                <p className="text-xs text-slate-500">10:00 AM - School Auditorium</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>                  
+                            <Card className="border-none shadow-lg p-6 bg-white dark:bg-neutral-900 rounded-3xl">
+                                <h4 className="font-black text-lg mb-4 flex items-center gap-2"><Star className="text-yellow-500" /> Top Grading</h4>
+                                <div className="space-y-4">
+                                    <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex justify-between items-center">
+                                        <span className="font-bold">Average GPA</span>
+                                        <span className="text-2xl font-black text-indigo-600">4.85</span>
+                                    </div>
+                                    <p className="text-xs text-slate-400 px-2 text-center italic">"Great improvement since last month!"</p>
+                                </div>
+                            </Card>
+                        </div>
+                    </div>
+                    <div className="lg:col-span-4 space-y-8">
+                        <Card className="border-none shadow-xl bg-primary text-white rounded-3xl overflow-hidden p-8">
+                            <div className="flex justify-between items-center mb-6">
+                                <h4 className="font-black text-xl">Calendar</h4>
+                                <span className="text-xs font-bold bg-white/20 px-3 py-1 rounded-full uppercase">May 2026</span>
+                            </div>
+                            <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-black opacity-60 mb-4">
+                                <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                            </div>
+                            <div className="grid grid-cols-7 gap-2 text-center font-bold text-sm">
+                                {Array.from({length: 31}).map((_, i) => (
+                                    <div key={i} className={`p-2 rounded-lg transition-all ${i+1 === 12 ? 'bg-white text-primary shadow-lg scale-110' : 'hover:bg-white/10 cursor-pointer'}`}>
+                                        {i+1}
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+                        <Card className="border-none shadow-lg bg-white dark:bg-neutral-900 rounded-3xl p-6">
+                            <h4 className="font-black text-lg mb-6">Live Activity</h4>
+                            <div className="space-y-6">
+                                <div className="flex gap-4">
+                                    <div className="h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                                        <FileCheck className="h-5 w-5 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold">New Exam Created</p>
+                                        <p className="text-xs text-slate-400">by Rezwan Khan • 2 mins ago</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-4">
+                                    <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+                                        <Users className="h-5 w-5 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold">Student Enrolled</p>
+                                        <p className="text-xs text-slate-400">Masud joined Grade 10 • 1 hour ago</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button className="w-full mt-8 py-3 rounded-2xl bg-slate-50 dark:bg-neutral-800 text-xs font-black text-slate-500 uppercase tracking-widest hover:bg-slate-100 transition-colors">View All Activity</button>
+                        </Card>
                     </div>
                 </div>
             </div>

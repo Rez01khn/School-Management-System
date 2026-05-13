@@ -9,7 +9,7 @@ class Enrollment extends Model
 {
     use HasFactory;
         public $timestamps = false;
-        protected $primarykey = 'enrollment_id';
+        protected $primaryKey = 'enrollment_id';
     protected $fillable = [
         'tenant_id',
         'student_id',

@@ -13,101 +13,66 @@ import {
     ClipboardCheck, 
     FileSignature, 
     CheckSquare, 
-    FileBadge, 
     Github, 
-    LifeBuoy 
+    Award,      
+    Megaphone,  
+    CalendarDays,
+    Wallet,  
 } from 'lucide-react'; 
 import AppLogo from './app-logo';
 
+// ১. টাইপস্ক্রিপ্টের জন্য ইন্টারফেস ডিফাইন করা (any এরর দূর করার জন্য)
+interface AuthUser {
+    id: number;
+    name: string;
+    email: string;
+    role: 'admin' | 'teacher' | 'student';
+    tenant_id: number;
+}
+
+interface PageProps {
+    auth: {
+        user: AuthUser | null;
+    };
+    [key: string]: unknown; // অন্য যেকোনো ডায়নামিক প্রোপসের জন্য
+}
+
 const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        url: '/dashboard',
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Teacher',
-        url: '/teachers',
-        icon: GraduationCap,
-    },
-    {
-        title: 'Student',
-        url: '/students',
-        icon: Users,
-    },
-    {
-        title: 'Courses',
-        url: '/courses',
-        icon: BookOpen, 
-    },
-    {
-        title: 'Enrollments',
-        url: '/enrollments',
-        icon: UserPlus, 
-    },
-    {
-        title: 'Attendance',
-        url: '/attendance',
-        icon: ClipboardCheck,
-    },
-    {
-        title: 'Exams',
-        url: '/exams',
-        icon: FileSignature,
-    },
-    {
-        title: 'Marks',
-        url: '/marks',
-        icon: CheckSquare,
-    },
-    {
-        title: 'Report Card',
-        url: '/report-card',
-        icon: FileBadge,
-    },
+    { title: 'Dashboard', url: '/dashboard', icon: LayoutGrid },
+    { title: 'Teacher', url: '/teachers', icon: GraduationCap },
+    { title: 'Student', url: '/students', icon: Users },
+    { title: 'Courses', url: '/courses', icon: BookOpen },
+    { title: 'Enrollments', url: '/enrollments', icon: UserPlus },
+    { title: 'Attendance', url: '/attendance', icon: ClipboardCheck },
+    { title: 'Exams', url: '/exams', icon: FileSignature },
+    { title: 'Marks', url: '/marks', icon: CheckSquare },
+    { title: 'Report Card', url: '/report-card', icon: Award },
+    { title: 'Notices', url: '/notices', icon: Megaphone },
+    { title: 'Routine', url: '/routines', icon: CalendarDays },
+    { title: 'Payment', url: '/payments', icon: Wallet },
 ];
 
 const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        url: 'https://github.com/Rez01khn',
-        icon: Github,
-    },
-    {
-        title: 'Documentation',
-        url: 'https://laravel.com/docs/starter-kits',
-        icon: LifeBuoy,
-    },
+    { title: 'Repository', url: 'https://github.com/Rez01khn', icon: Github },
+    { title: 'Documentation', url: 'https://laravel.com/docs/starter-kits', icon: BookOpen },
 ];
 
 export function AppSidebar() {
-    // সরাসরি auth অবজেক্টটি props থেকে নিন
-    const { auth } = usePage().props as any;
-    
-    // ডিবাগ করার জন্য এটি কনসোলে দেখুন
-    console.log("Auth Data:", auth);
-
+    const { auth } = usePage<PageProps>().props;
     const userRole = auth?.user?.role;
-
     const filteredNavItems = mainNavItems.filter((item) => {
-        // যদি ইউজার লগইন না থাকে, তবে কিছুই দেখাবে না
         if (!userRole) return false;
-
-        // এডমিন হলে সব দেখাবে
         if (userRole === 'admin') return true;
-
-        // টিচার যা যা দেখবে
         if (userRole === 'teacher') {
             return [
-                'Dashboard', 'Courses', 'Attendance', 'Exams', 'Marks', 'Report Card'
+                'Dashboard', 'Courses', 'Attendance', 'Exams', 'Marks', 'Report Card', 'Notices', 'Routine', 'Payment'
             ].includes(item.title);
         }
-
-        // স্টুডেন্ট যা যা দেখবে
         if (userRole === 'student') {
-            return ['Dashboard', 'Report Card'].includes(item.title);
+            return [
+                'Dashboard', 'Report Card', 'Notices', 'Routine', 'Payment'
+            ].includes(item.title);
         }
-
         return false;
     });
 
@@ -134,4 +99,5 @@ export function AppSidebar() {
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
-    );}
+    );
+}
